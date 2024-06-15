@@ -13,6 +13,8 @@
 */
 
 SDL_Color ORANGE = {255, 127, 40, 255};
+SDL_Color BLACK = {0, 0, 0, 255};
+SDL_Color WHITE = {255, 255, 255, 255};
 
 /*
     FIN COULEURS
@@ -32,7 +34,20 @@ int setWindowColor(SDL_Renderer *rendeur, SDL_Color color);
 
 int setWindowColor(SDL_Renderer *rendeur, SDL_Color color)
 {
-    // TODO !
+    // on choisit la couleur sur le pinceau:
+    if(SDL_SetRenderDrawColor(rendeur, color.r, color.g, color.b, color.a) != 0)
+    {
+        return -1;
+    }
+
+    // on peint en entier la fenetre associé a notre rendeur
+    if(SDL_RenderClear(rendeur) != 0)
+    {
+        return -1;
+    }
+
+    SDL_RenderPresent(rendeur);
+
     return 0;
 }
 
@@ -115,34 +130,55 @@ int main(int argc, char *argv[])
         status = EXIT_FAILURE;
         goto Quit;
     }
+    
 
-
+    // 
+    // Couleurs:
     //
-    // COULEURS:
-    //
 
-    // on choisit la couleur sur le pinceau:
-    if(SDL_SetRenderDrawColor(rendeur, ORANGE.r, ORANGE.g, ORANGE.b, ORANGE.a) != 0)
+    SDL_Delay(500);
+    if(setWindowColor(rendeur, ORANGE) != 0)
     {
-        fprintf(stderr, "Erreur à SDL_SetRendererDrawColor: %s", SDL_GetError());
+        fprintf(stderr, "Erreur à setWindowColor: %s", SDL_GetError());
         status = EXIT_FAILURE;
         goto Quit;
     }
-
-    // on peint en entier la fenetre associé a notre rendeur
-    if(SDL_RenderClear(rendeur) != 0)
+    SDL_Delay(500);
+    if(setWindowColor(rendeur, BLACK) != 0)
     {
-        fprintf(stderr, "Erreur à SDL_RenderClear: %s", SDL_GetError());
+        fprintf(stderr, "Erreur à setWindowColor: %s", SDL_GetError());
         status = EXIT_FAILURE;
         goto Quit;
     }
-
-    // Maintenant que le rendeur est a jour il faut raffraichir pour formé le rendu:
     SDL_Delay(500);
-    SDL_RenderPresent(rendeur);
+    if(setWindowColor(rendeur, ORANGE) != 0)
+    {
+        fprintf(stderr, "Erreur à setWindowColor: %s", SDL_GetError());
+        status = EXIT_FAILURE;
+        goto Quit;
+    }
     SDL_Delay(500);
-
-
+    if(setWindowColor(rendeur, BLACK) != 0)
+    {
+        fprintf(stderr, "Erreur à setWindowColor: %s", SDL_GetError());
+        status = EXIT_FAILURE;
+        goto Quit;
+    }
+    SDL_Delay(500);
+    if(setWindowColor(rendeur, ORANGE) != 0)
+    {
+        fprintf(stderr, "Erreur à setWindowColor: %s", SDL_GetError());
+        status = EXIT_FAILURE;
+        goto Quit;
+    }
+    SDL_Delay(500);
+    if(setWindowColor(rendeur, BLACK) != 0)
+    {
+        fprintf(stderr, "Erreur à setWindowColor: %s", SDL_GetError());
+        status = EXIT_FAILURE;
+        goto Quit;
+    }
+    SDL_Delay(500);
 
 
 
