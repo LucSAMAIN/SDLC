@@ -26,8 +26,6 @@ SDL_Color WHITE = {255, 255, 255, 255};
 
 int setWindowColor(SDL_Renderer *rendeur, SDL_Color color);
 
-
-
 ////////////////////////////////////////////////
 /////////////// DEFINITIONS/////////////////////
 ////////////////////////////////////////////////
@@ -50,6 +48,7 @@ int setWindowColor(SDL_Renderer *rendeur, SDL_Color color)
 
     return 0;
 }
+
 
 
 void shakeItUP(SDL_Window *myWindow)
@@ -133,53 +132,46 @@ int main(int argc, char *argv[])
     
 
     // 
-    // Couleurs:
+    // Draw point and line:
     //
 
-    SDL_Delay(500);
-    if(setWindowColor(rendeur, ORANGE) != 0)
+    if(0 != SDL_SetRenderDrawColor(rendeur, WHITE.r, WHITE.g, WHITE.b, WHITE.a))
     {
-        fprintf(stderr, "Erreur à setWindowColor: %s", SDL_GetError());
+        fprintf(stderr, "Erreur à SDL_SetRenderDrawColor: %s", SDL_GetError());
         status = EXIT_FAILURE;
         goto Quit;
     }
-    SDL_Delay(500);
-    if(setWindowColor(rendeur, BLACK) != 0)
-    {
-        fprintf(stderr, "Erreur à setWindowColor: %s", SDL_GetError());
-        status = EXIT_FAILURE;
-        goto Quit;
-    }
-    SDL_Delay(500);
-    if(setWindowColor(rendeur, ORANGE) != 0)
-    {
-        fprintf(stderr, "Erreur à setWindowColor: %s", SDL_GetError());
-        status = EXIT_FAILURE;
-        goto Quit;
-    }
-    SDL_Delay(500);
-    if(setWindowColor(rendeur, BLACK) != 0)
-    {
-        fprintf(stderr, "Erreur à setWindowColor: %s", SDL_GetError());
-        status = EXIT_FAILURE;
-        goto Quit;
-    }
-    SDL_Delay(500);
-    if(setWindowColor(rendeur, ORANGE) != 0)
-    {
-        fprintf(stderr, "Erreur à setWindowColor: %s", SDL_GetError());
-        status = EXIT_FAILURE;
-        goto Quit;
-    }
-    SDL_Delay(500);
-    if(setWindowColor(rendeur, BLACK) != 0)
-    {
-        fprintf(stderr, "Erreur à setWindowColor: %s", SDL_GetError());
-        status = EXIT_FAILURE;
-        goto Quit;
-    }
+
+    SDL_RenderDrawLine(
+        rendeur,
+        100, 100,
+        200, 100
+    );
+    SDL_RenderPresent(rendeur);
     SDL_Delay(500);
 
+    SDL_RenderDrawLine(
+        rendeur,
+        200, 100,
+        200, 300
+    );
+    SDL_RenderPresent(rendeur);
+    SDL_Delay(500);
+
+    SDL_RenderDrawLine(
+        rendeur,
+        200, 300,
+        300, 300
+    );
+    SDL_RenderPresent(rendeur);
+    SDL_Delay(500);
+
+
+
+
+    // Attendre pour constater le résultat:
+    SDL_Delay(3000);
+   
 
 
 
