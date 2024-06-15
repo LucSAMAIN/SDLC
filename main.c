@@ -15,6 +15,10 @@
 SDL_Color ORANGE = {255, 127, 40, 255};
 SDL_Color BLACK = {0, 0, 0, 255};
 SDL_Color WHITE = {255, 255, 255, 255};
+SDL_Color RED = {255, 0, 0, 255};
+SDL_Color GREEN = {0, 255, 0, 255};
+SDL_Color BLUE = {0, 0, 255, 255};
+SDL_Color PURPLE = {150, 0, 150, 255};
 
 /*
     FIN COULEURS
@@ -144,21 +148,45 @@ int main(int argc, char *argv[])
 
     SDL_SetRenderDrawColor(renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
 
-    // damier du tuto:
+    
+    // texture:
+    SDL_Texture *maTexture = SDL_CreateTexture(
+        renderer,
+        SDL_PIXELFORMAT_RGBA8888, // format pixel ici rgb alpha
+        SDL_TEXTUREACCESS_TARGET, // quel type d'acces = utilisation de la texture = ici en tant que cible du rendu (et pas la window)
+        200, // largeur
+        200 // hauteur
+    );
+   
+   if(NULL == maTexture)
+   {
+        fprintf(stderr, "Erreur à SDL_CreateTexture: %s", SDL_GetError());
+        status = EXIT_FAILURE;
+        goto Quit;
+   }
 
-    SDL_Rect rect[60];
-    size_t i = 0;
-    for(i = 0; i < 50; i++)
-    {   
-        rect[i].w = 50;
-        rect[i].h = 50;
-        rect[i].x = 100 * (i % 5) + 50 * ((i / 5) % 2);
-        rect[i].y = 50 * (i / 5);
+   if( 0 != SDL_SetRenderTarget(renderer, maTexture))
+   {
+        fprintf(stderr, "Erreur à SDL_SetRenderTarget: %s", SDL_GetError());
+        status = EXIT_FAILURE;
+        goto Quit;
+   }
+
+   SDL_SetRenderDrawColor(renderer, PURPLE.r, PURPLE.g, PURPLE.b, PURPLE.a);
+   SDL_Rect rect = {50, 50, 100, 100};
+   SDL_RenderFillRect(renderer, &rect);
+   SDL_SetRenderTarget(renderer, NULL); // repasser la main a la window
+
+    SDL_Rect dst = {0, 0, 50, 50};
+    if(0 != SDL_RenderCopy(renderer, maTexture, NULL, &dst))
+    {
+        fprintf(stderr, "Erreur à SDL_RenderCopy: %s", SDL_GetError());
+        status = EXIT_FAILURE;
+        goto Quit;
     }
-    SDL_RenderFillRects(renderer, rect, 50); 
+
     SDL_RenderPresent(renderer);
 
-   
 
     // Attendre pour constater le résultat:
     SDL_Delay(3000);
@@ -171,6 +199,8 @@ Quit:
         SDL_DestroyWindow(window);
     if(renderer != NULL)
         SDL_DestroyRenderer(renderer);
+    if(maTexture != NULL)
+        SDL_DestroyTexture(maTexture);
 
     SDL_Quit();
     return status;
