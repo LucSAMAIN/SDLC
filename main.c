@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
 {
 
     SDL_Window *window = NULL;
+    SDL_Renderer *rendeur = NULL;
     int status = EXIT_SUCCESS;
 
     if(SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -63,13 +64,30 @@ int main(int argc, char *argv[])
         goto Quit;
     }
 
-    shakeItUP(window);
+    // shakeItUP(window);
 
+    rendeur = SDL_CreateRenderer(
+        window, // fenetre en question
+        -1, // pilot - gere des truc mais aussi pas besoin de mettre le drapeau d'apres...
+        SDL_RENDERER_ACCELERATED // via gpu
+    )
 
+    if(rendeur == NULL)
+    {
+        fprintf(stderr, "Erreur à SDL_CreateRenderer: %s", SDL_GetError());
+        status = EXIT_FAILURE;
+        goto Quit;
+    }
 
-    SDL_DestroyWindow(window);
+    SDL_Delay(3000);
+
 
 Quit:
+    if(window != NULL)
+        SDL_DestroyWindow(window);
+    if(rendeur != NULL)
+        SDL_DestroyRenderer(rendeur);
+
     SDL_Quit();
     return status;
 }
