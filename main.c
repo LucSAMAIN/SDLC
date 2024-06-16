@@ -31,12 +31,13 @@ SDL_Color PURPLE = {150, 0, 150, 255};
 int setWindowColor(SDL_Renderer *rendeur, SDL_Color color);
 void shakeItUP(SDL_Window *myWindow);
 int initRendererAndWindow(SDL_Window **resultWindow, SDL_Renderer **resultRendeur);
+SDL_Texture *loadImage(SDL_Renderer *rendeur, const char *path);
 
 ////////////////////////////////////////////////
 /////////////// DEFINITIONS/////////////////////
 ////////////////////////////////////////////////
 
-int initRendererAndWindow(SDL_Window **resultWindow, SDL_Renderer **resultRendeur)
+int initRendererAndWindow(SDL_Window **resultWindow, SDL_Renderer **resultRendeur, int largeur, int hauteur)
 {
     if(SDL_Init(SDL_INIT_VIDEO) != 0)
     {
@@ -44,34 +45,35 @@ int initRendererAndWindow(SDL_Window **resultWindow, SDL_Renderer **resultRendeu
         return -1;
     }
 
-    *resultWindow = SDL_CreateWindow(
-        "MaPremiereFenetre", // title
-        SDL_WINDOWPOS_CENTERED, // x
-        SDL_WINDOWPOS_CENTERED, // y
-        640, // witdh
-        480, // height
-        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE // flags
-    );
-
-    if(*resultWindow == NULL)
+    if( SDL_CreateWindowAndRenderer(largeur, hauteur, SDL_WINDOW_SHOWN, resultWindow, resultRendeur) != 0)
     {
-        fprintf(stderr, "Erreur à SDL_CreateWindow: %s", SDL_GetError());
+        fprintf(stderr, "Erreur à SDL_CreateWindowAndRenderer: %s", SDL_GetError());
         return -1;
     }
-
-    *resultRendeur = SDL_CreateRenderer(
-        *resultWindow, // fenetre en question
-        -1, // pilot - gere des truc mais aussi pas besoin de mettre le drapeau d'apres...
-        SDL_RENDERER_ACCELERATED // via gpu
-    );
-
-    if(*resultRendeur == NULL)
-    {
-        fprintf(stderr, "Erreur à SDL_CreateRenderer: %s", SDL_GetError());
-        return -1;
-    }
-
+            
     return 0;
+
+}
+
+SDL_Texture *loadImage(SDL_Renderer *rendeur, const char *path)
+{
+    SDL_Surface *surface = SDL_LoadBMP(path);
+    if(surface == NULL)
+    {
+        fprintf(stderr, "Erreur à SDL_LoadBMP: %s", SDL_GetError());
+        return NULL;
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(rendeur, surface);
+    SDL_FreeSurface(surface);
+    if(texture == NULL)
+    {
+        fprintf(stderr, "Erreur à SDL_CreateTextureFromSurface: %s", SDL_GetError());
+        return NULL;
+    }
+
+
+    return texture;
 
 }
 
@@ -137,6 +139,7 @@ int main(int argc, char *argv[])
 
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
+    SDL_Texture *maTexture = NULL;
     int status = EXIT_SUCCESS;
 
     if( 0 != initRendererAndWindow(&window, &renderer))
@@ -145,49 +148,31 @@ int main(int argc, char *argv[])
         goto Quit;
     }
 
+    // SURFACE:
+    SDL_Surface *surface;
+    surface = SDL_CreateRGBSurface(0, 100, 100, 32, 0, 0, 0, 0);
+    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 255, 0, 0));
 
-    SDL_SetRenderDrawColor(renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
+    SDL_SetWindowIcon(window,
+                      surface);
 
-    
-    // texture:
-    SDL_Texture *maTexture = SDL_CreateTexture(
-        renderer,
-        SDL_PIXELFORMAT_RGBA8888, // format pixel ici rgb alpha
-        SDL_TEXTUREACCESS_TARGET, // quel type d'acces = utilisation de la texture = ici en tant que cible du rendu (et pas la window)
-        200, // largeur
-        200 // hauteur
-    );
-   
-   if(NULL == maTexture)
-   {
-        fprintf(stderr, "Erreur à SDL_CreateTexture: %s", SDL_GetError());
-        status = EXIT_FAILURE;
-        goto Quit;
-   }
+    maTexture = SDL_CreateTextureFromSurface(renderer, surface);
 
-   if( 0 != SDL_SetRenderTarget(renderer, maTexture))
-   {
-        fprintf(stderr, "Erreur à SDL_SetRenderTarget: %s", SDL_GetError());
-        status = EXIT_FAILURE;
-        goto Quit;
-   }
+    SDL_Rect dst = {0, 0, 100, 20};
 
-   SDL_SetRenderDrawColor(renderer, PURPLE.r, PURPLE.g, PURPLE.b, PURPLE.a);
-   SDL_Rect rect = {50, 50, 100, 100};
-   SDL_RenderFillRect(renderer, &rect);
-   SDL_SetRenderTarget(renderer, NULL); // repasser la main a la window
+    SDL_RenderCopy(renderer, maTexture, NULL, &dst);
 
-    SDL_Rect dst = {0, 0, 50, 50};
-    if(0 != SDL_RenderCopy(renderer, maTexture, NULL, &dst))
-    {
-        fprintf(stderr, "Erreur à SDL_RenderCopy: %s", SDL_GetError());
-        status = EXIT_FAILURE;
-        goto Quit;
-    }
 
+
+
+
+
+
+
+
+
+    // rendre le travail affichable
     SDL_RenderPresent(renderer);
-
-
     // Attendre pour constater le résultat:
     SDL_Delay(3000);
    
