@@ -30,7 +30,7 @@ SDL_Color PURPLE = {150, 0, 150, 255};
 
 int setWindowColor(SDL_Renderer *rendeur, SDL_Color color);
 void shakeItUP(SDL_Window *myWindow);
-int initRendererAndWindow(SDL_Window **resultWindow, SDL_Renderer **resultRendeur);
+int initRendererAndWindow(SDL_Window **resultWindow, SDL_Renderer **resultRendeur, int largeur, int hauteur);
 SDL_Texture *loadImage(SDL_Renderer *rendeur, const char *path);
 
 ////////////////////////////////////////////////
@@ -142,29 +142,24 @@ int main(int argc, char *argv[])
     SDL_Texture *maTexture = NULL;
     int status = EXIT_SUCCESS;
 
-    if( 0 != initRendererAndWindow(&window, &renderer))
+    if( 0 != initRendererAndWindow(&window, &renderer, 500, 500))
     {
         status = EXIT_FAILURE;
         goto Quit;
     }
 
-    // SURFACE:
-    SDL_Surface *surface;
-    surface = SDL_CreateRGBSurface(0, 100, 100, 32, 0, 0, 0, 0);
-    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 255, 0, 0));
+    // Event:
 
-    SDL_SetWindowIcon(window,
-                      surface);
+    SDL_Event event;
+    SDL_bool quit = SDL_FALSE;
 
-    maTexture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    SDL_Rect dst = {0, 0, 100, 20};
-
-    SDL_RenderCopy(renderer, maTexture, NULL, &dst);
-
-
-
-
+    while(!quit)
+    {
+        SDL_PollEvent(&event);
+            if(event.type == SDL_QUIT)
+                quit = SDL_TRUE;
+            SDL_Delay(20);
+    }
 
 
 
@@ -174,7 +169,7 @@ int main(int argc, char *argv[])
     // rendre le travail affichable
     SDL_RenderPresent(renderer);
     // Attendre pour constater le résultat:
-    SDL_Delay(3000);
+    SDL_Delay(1000);
    
 
 
